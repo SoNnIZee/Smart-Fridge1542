@@ -1,0 +1,335 @@
+
+#:kivy 2.1.0
+
+<StyledBoxLayout@BoxLayout>:
+    border_color: 0.9, 0.9, 0.9, 1
+    canvas.before:
+        Color:
+            rgba: self.border_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10]  # Закругленные углы
+
+<QRScanScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+
+        TextInput:
+            id: product_name
+            hint_text: "Название продукта"
+            multiline: False
+
+        TextInput:
+            id: product_type
+            hint_text: "Тип продукта"
+            multiline: False
+
+        TextInput:
+            id: production_date
+            hint_text: "Дата изготовления (YYYY-MM-DD)"
+            multiline: False
+
+        TextInput:
+            id: expiration_date
+            hint_text: "Дата истечения (YYYY-MM-DD)"
+            multiline: False
+
+        TextInput:
+            id: quantity
+            hint_text: "Количество"
+            multiline: False
+
+        TextInput:
+            id: unit
+            hint_text: "Единица измерения"
+            multiline: False
+
+        TextInput:
+            id: nutritional_value
+            hint_text: "Пищевая ценность"
+            multiline: False
+
+        TextInput:
+            id: measurement_type
+            hint_text: "Тип измерения"
+            multiline: False
+
+        Button:
+            text: "Добавить продукт"
+            size_hint_y: None
+            height: 50
+            on_press: root.add_product_manually()
+
+<MainScreen>:
+    StyledBoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+        border_color: 0.95, 0.95, 0.95, 1
+
+        Label:
+            text: "Холодильник открыт!"
+            font_size: 32
+            font_name: "Roboto"  # Используем встроенный шрифт Roboto
+            bold: True  # Делаем текст жирным
+            color: 0.1, 0.1, 0.1, 1
+            size_hint_y: None
+            height: 60
+            halign: "center"
+
+        Button:
+            text: "Открыть холодильник"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.2, 0.6, 1, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.2
+            on_press: root.manager.current = 'fridge'
+
+        Button:
+            text: "Аналитика потребления"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.2, 0.8, 0.6, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.2
+            on_press: root.manager.current = 'analytics'
+
+        Button:
+            text: "Скан QR"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.6, 0.2, 1, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.2
+            on_press: root.scan_qr()
+
+        Button:
+            text: "Список покупок"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.9, 0.5, 0.2, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.2
+            on_press: root.manager.current = 'shopping_list'
+
+<FridgeScreen>:
+    StyledBoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+        border_color: 0.95, 0.95, 0.95, 1
+
+        TextInput:
+            id: search_input
+            hint_text: "Поиск по названию"
+            size_hint_y: None
+            height: 40
+            on_text_validate: root.search_products(self.text)  # Передаем текст напрямую
+
+        Spinner:
+            id: type_spinner
+            text: "Выберите тип продукта"
+            values: ["Молочка", "Соусы", "Мясо", "Овощи", "Хлеб", "Фрукты", "Напитки", "Яйца", "Сыры", "Масло", "Рыба", "Курица"]
+            size_hint_y: None
+            height: 40
+            on_text: root.search_products(search_input.text, self.text)
+
+        ScrollView:
+            size_hint: 1, 0.8
+            do_scroll_x: False
+            do_scroll_y: True
+
+            StyledBoxLayout:
+                id: products_container
+                orientation: 'vertical'
+                spacing: 15
+                size_hint_y: None
+                height: self.minimum_height
+                border_color: 0.9, 0.9, 0.9, 1
+
+
+        Button:
+            text: "Назад"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.8, 0.2, 0.2, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.1
+            on_press: root.manager.current = 'main'
+
+#:kivy 2.1.0
+
+<AnalyticsScreen>:
+    StyledBoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+        border_color: 0.95, 0.95, 0.95, 1
+
+        Label:
+            text: "Аналитика потребления"
+            font_size: 28
+            font_name: "Roboto"
+            bold: True
+            color: 0.1, 0.1, 0.1, 1
+            size_hint_y: None
+            height: 50
+            halign: "center"
+
+        # Кнопка, по нажатию вызывающая метод show_analytics()
+        # (чтобы обновить/получить статистику из таблицы deleted_products)
+        Button:
+            text: "Обновить аналитику"
+            font_size: 18
+            font_name: "Roboto"
+            background_color: 0.2, 0.6, 1, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: None
+            height: 50
+            on_press: root.show_analytics()
+
+        ScrollView:
+            size_hint: 1, 0.7
+            do_scroll_x: False
+            do_scroll_y: True
+
+            GridLayout:
+                id: analytics_grid
+                cols: 5
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 10
+                padding: 10
+
+                Label:
+                    text: '№'
+                    bold: True
+                    font_size: 18
+
+
+                Label:
+                    text:"Продукт"
+                    bold: True
+                    font_size: 18
+
+                Label:
+                    text: "Тип"
+                    bold: True
+                    font_size: 18
+
+                Label:
+                    text: "Статус"
+                    bold: True
+                    font_size: 18
+
+                Label:
+                    text: "Дата удаления"
+                    bold: True
+                    font_size: 18
+
+
+                Label:
+                    text: "Тип"
+                    bold: True
+                    font_size: 18
+                    font_name: "Roboto"
+                    color: 0.1, 0.1, 0.1, 1
+                    size_hint_y: None
+                    height: 40
+
+                Label:
+                    text: "Статус"
+                    bold: True
+                    font_size: 18
+                    font_name: "Roboto"
+                    color: 0.1, 0.1, 0.1, 1
+                    size_hint_y: None
+                    height: 40
+
+                Label:
+                    text: "Дата удаления"
+                    bold: True
+                    font_size: 18
+                    font_name: "Roboto"
+                    color: 0.1, 0.1, 0.1, 1
+                    size_hint_y: None
+                    height: 40
+
+        Button:
+            text: "Назад"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.8, 0.2, 0.2, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.1
+            on_press: root.manager.current = 'main'
+
+
+<ShoppingListScreen>:
+    StyledBoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+        border_color: 0.95, 0.95, 0.95, 1
+
+        Label:
+            text: "Список покупок"
+            font_size: 28
+            font_name: "Roboto"
+            bold: True
+            color: 0.1, 0.1, 0.1, 1
+            size_hint_y: None
+            height: 50
+            halign: "center"
+
+        ScrollView:
+            size_hint: 1, 0.7
+            do_scroll_x: False
+            do_scroll_y: True
+
+            BoxLayout:
+                id: shopping_container
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 10
+                padding: 10
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint_y: None
+            height: 50
+
+            TextInput:
+                id: add_item_input
+                hint_text: "Добавить продукт"
+                size_hint_x: 0.7
+                multiline: False
+
+            Button:
+                text: "Добавить"
+                size_hint_x: 0.3
+                on_press: root.add_to_shopping_list(add_item_input.text)
+
+        Button:
+            text: "Назад"
+            font_size: 20
+            font_name: "Roboto"
+            background_color: 0.8, 0.2, 0.2, 1
+            background_normal: ''
+            color: 1, 1, 1, 1
+            size_hint_y: 0.1
+            on_press: root.manager.current = 'main'
+
